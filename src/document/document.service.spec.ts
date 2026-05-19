@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DocumentErrorCode } from './document-error-codes.js';
 import { DocumentService } from './document.service.js';
 
-jest.mock('./prisma/prisma.service.js', () => ({
+jest.mock('../prisma/prisma.service.js', () => ({
   PrismaService: class PrismaService {},
 }));
 
@@ -95,7 +95,7 @@ describe('DocumentService', () => {
         value: 'bar',
       });
 
-      expect(result).toEqual({ status: 'ok', code: 0 });
+      expect(result).toEqual({ status: 'ok', code: DocumentErrorCode.OK });
       expect(prisma.document.create).toHaveBeenCalledWith({
         data: { key: 'foo', value: 'bar' },
       });
@@ -138,7 +138,7 @@ describe('DocumentService', () => {
         value: 'baz',
       });
 
-      expect(result).toEqual({ status: 'ok', code: 0 });
+      expect(result).toEqual({ status: 'ok', code: DocumentErrorCode.OK });
       expect(prisma.document.update).toHaveBeenCalledWith({
         where: { key: 'foo' },
         data: { value: 'baz' },
@@ -177,7 +177,7 @@ describe('DocumentService', () => {
         key: 'foo',
       });
 
-      expect(result).toEqual({ status: 'ok', code: 0 });
+      expect(result).toEqual({ status: 'ok', code: DocumentErrorCode.OK });
       expect(prisma.document.delete).toHaveBeenCalledWith({
         where: { key: 'foo' },
       });
@@ -208,7 +208,7 @@ describe('DocumentService', () => {
 
       const result = await service.findByKey('foo');
 
-      expect(result).toEqual({ status: 'ok', code: 0, value: 'bar' });
+      expect(result).toEqual({ status: 'ok', code: DocumentErrorCode.OK, value: 'bar' });
     });
 
     it('returns error when key does not exist', async () => {
