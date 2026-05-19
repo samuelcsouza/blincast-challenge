@@ -1,98 +1,139 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Blincast Challenge — Document API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API HTTP NestJS que expõe `/document` para criar, atualizar, deletar e consultar pares chave-valor no PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Especificação completa: [docs/challenge-senior.md](docs/challenge-senior.md).
 
-## Description
+## Pré-requisitos
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Node.js 22+
+- [pnpm](https://pnpm.io/)
+- Docker e Docker Compose (para Postgres e/ou execução containerizada)
 
-## Project setup
+## Build local (sem Docker)
 
 ```bash
-$ pnpm install
+pnpm install
+cp .env.example .env
+docker compose up -d db
+pnpm prisma:migrate
+pnpm prisma:generate
+pnpm start:dev
 ```
 
-## Compile and run the project
+Build de produção e execução:
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm build
+pnpm start:prod
 ```
 
-## Run tests
+A API fica em `http://localhost:3000`.
+
+## Build da imagem Docker
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+docker build -t blincast:local .
 ```
 
-## Deployment
+## Subir aplicação + Postgres com Docker Compose
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Sobe Postgres e a API; na primeira execução o container da aplicação aplica as migrações Prisma automaticamente.
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+docker compose up --build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Exemplo de uso:
 
-## Resources
+```bash
+curl -s -X POST http://localhost:3000/document \
+  -H 'Content-Type: application/json' \
+  -d '{"action":"create","key":"foo","value":"bar"}'
 
-Check out a few resources that may come in handy when working with NestJS:
+curl -s http://localhost:3000/document/foo
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Imagem publicada no Docker Hub
 
-## Support
+O workflow [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) faz build e push da imagem a cada push na branch `main`.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Secrets no GitHub
 
-## Stay in touch
+Configure em **Settings → Secrets and variables → Actions**:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+| Secret | Descrição |
+|--------|-----------|
+| `DOCKERHUB_USERNAME` | Usuário do Docker Hub |
+| `DOCKERHUB_TOKEN` | Access Token do Docker Hub (recomendado em vez da senha) |
 
-## License
+A imagem é publicada como `<DOCKERHUB_USERNAME>/blincast:latest` (e também com tag do commit SHA).
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Pull e execução com Postgres
+
+```bash
+export DOCKERHUB_USERNAME=seu-usuario
+docker pull ${DOCKERHUB_USERNAME}/blincast:latest
+```
+
+Com Postgres já rodando e acessível (ex.: `docker compose up -d db` neste repositório):
+
+```bash
+docker run --rm -p 3000:3000 \
+  -e DATABASE_URL="postgresql://postgres:postgres@host.docker.internal:5432/blincast?schema=public" \
+  -e PORT=3000 \
+  ${DOCKERHUB_USERNAME}/blincast:latest
+```
+
+No Linux, troque `host.docker.internal` pelo IP do host ou use a rede do Compose abaixo.
+
+### Compose usando a imagem do Hub
+
+Crie um `docker-compose.hub.yml` (ou ajuste o serviço `app` no compose) para usar a imagem publicada em vez do build local:
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: blincast
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d blincast"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: ${DOCKERHUB_USERNAME}/blincast:latest
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/blincast?schema=public
+      PORT: "3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+```
+
+```bash
+export DOCKERHUB_USERNAME=seu-usuario
+docker compose -f docker-compose.hub.yml up
+```
+
+## Variáveis de ambiente
+
+| Variável | Descrição |
+|----------|-----------|
+| `DATABASE_URL` | URL de conexão PostgreSQL |
+| `PORT` | Porta HTTP (padrão: `3000`) |
+
+Veja [.env.example](.env.example).
