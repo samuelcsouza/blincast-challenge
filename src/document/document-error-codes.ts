@@ -1,5 +1,5 @@
 export const DocumentErrorCode = {
-  OK: 200,
+  OK: 0,
   INVALID_PAYLOAD: 400,
   KEY_ALREADY_EXISTS: 409,
   KEY_NOT_FOUND: 404,
