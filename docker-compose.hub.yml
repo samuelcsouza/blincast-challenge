@@ -16,7 +16,7 @@ services:
       retries: 5
 
   app:
-    image: ${DOCKERHUB_USERNAME}/blincast:latest
+    image: samuelcsouza/blincast:latest
     ports:
       - "3000:3000"
     environment:
