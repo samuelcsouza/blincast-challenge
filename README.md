@@ -1,8 +1,14 @@
-# Blincast Challenge — Document API
+<div align="center" style="display: inline_block">
 
-API HTTP NestJS que expõe `/document` para criar, atualizar, deletar e consultar pares chave-valor no PostgreSQL.
+# Blincast Challenge
 
-Especificação completa: [docs/challenge-senior.md](docs/challenge-senior.md).
+
+   <img align="center" alt="NestJS" height="30" width="40" src="https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/nestjs/nestjs-original.svg">
+   <img align="center" alt="Prisma ORM" height="30" width="40" src="https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/prisma/prisma-original.svg">
+   <img align="center" alt="PostgreSQL" height="30" width="40" src="https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/postgresql/postgresql-original.svg">
+   <img align="center" alt="Docker" height="30" width="40" src="https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/docker/docker-original.svg">
+</div>
+
 
 ## Pré-requisitos
 
@@ -69,7 +75,7 @@ curl -s http://localhost:3000/document/foo
 
 ## Imagem publicada no Docker Hub
 
-O workflow [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) faz build e push da imagem a cada push na branch `main`. Também é possível buildar via comando no GitHub Actions
+O workflow [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) faz build e push da imagem a cada push na branch `main`. Também é possível buildar via GitHub Actions
 
 ### Secrets no GitHub
 
