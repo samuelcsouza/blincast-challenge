@@ -1,8 +1,14 @@
-# Blincast Challenge — Document API
+<div align="center" style="display: inline_block">
 
-API HTTP NestJS que expõe `/document` para criar, atualizar, deletar e consultar pares chave-valor no PostgreSQL.
+# Blincast Challenge
 
-Especificação completa: [docs/challenge-senior.md](docs/challenge-senior.md).
+
+   <img align="center" alt="NestJS" height="30" width="40" src="https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/nestjs/nestjs-original.svg">
+   <img align="center" alt="Prisma ORM" height="30" width="40" src="https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/prisma/prisma-original.svg">
+   <img align="center" alt="PostgreSQL" height="30" width="40" src="https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/postgresql/postgresql-original.svg">
+   <img align="center" alt="Docker" height="30" width="40" src="https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/docker/docker-original.svg">
+</div>
+
 
 ## Pré-requisitos
 
@@ -36,6 +42,19 @@ A API fica em `http://localhost:3000`.
 docker build -t blincast:local .
 ```
 
+## Rodando a aplicação com Docker
+
+Certifique-se que o Postgres está rodando e acessível.
+
+```bash
+docker compose up -d db
+
+docker run --rm -p 3000:3000 \
+  -e DATABASE_URL="postgresql://postgres:postgres@$(ip route | grep docker0 | awk '{print $9}'):5432/blincast?schema=public" \
+  -e PORT=3000 \
+  blincast:local
+```
+
 ## Subir aplicação + Postgres com Docker Compose
 
 Sobe Postgres e a API; na primeira execução o container da aplicação aplica as migrações Prisma automaticamente.
@@ -56,7 +75,7 @@ curl -s http://localhost:3000/document/foo
 
 ## Imagem publicada no Docker Hub
 
-O workflow [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) faz build e push da imagem a cada push na branch `main`.
+O workflow [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) faz build e push da imagem a cada push na branch `main`. Também é possível buildar via GitHub Actions
 
 ### Secrets no GitHub
 
@@ -72,60 +91,28 @@ A imagem é publicada como `<DOCKERHUB_USERNAME>/blincast:latest` (e também com
 ### Pull e execução com Postgres
 
 ```bash
-export DOCKERHUB_USERNAME=seu-usuario
-docker pull ${DOCKERHUB_USERNAME}/blincast:latest
+docker pull samuelcsouza/blincast:latest
 ```
 
-Com Postgres já rodando e acessível (ex.: `docker compose up -d db` neste repositório):
+Com Postgres já rodando e acessível (ex.: `docker compose up -d db` neste repositório)
+
+No Linux, use o comando abaixo:
 
 ```bash
-docker run --rm -p 3000:3000 \
-  -e DATABASE_URL="postgresql://postgres:postgres@host.docker.internal:5432/blincast?schema=public" \
-  -e PORT=3000 \
-  ${DOCKERHUB_USERNAME}/blincast:latest
-```
+# Obtém o IP da rede Docker
+export IP=$(ip route | grep docker0 | awk '{print $9}')
 
-No Linux, troque `host.docker.internal` pelo IP do host ou use a rede do Compose abaixo.
+docker run --rm -p 3000:3000 \
+  -e DATABASE_URL="postgresql://postgres:postgres@${IP}:5432/blincast?schema=public" \
+  -e PORT=3000 \
+  samuelcsouza/blincast:latest
+```
 
 ### Compose usando a imagem do Hub
 
-Crie um `docker-compose.hub.yml` (ou ajuste o serviço `app` no compose) para usar a imagem publicada em vez do build local:
-
-```yaml
-services:
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: blincast
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d blincast"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  app:
-    image: ${DOCKERHUB_USERNAME}/blincast:latest
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/blincast?schema=public
-      PORT: "3000"
-    depends_on:
-      db:
-        condition: service_healthy
-
-volumes:
-  postgres_data:
-```
+Para utilizar diretamente a imagem publicada no Docker Hub, use o arquivo `docker-compose.hub.yml`:
 
 ```bash
-export DOCKERHUB_USERNAME=seu-usuario
 docker compose -f docker-compose.hub.yml up
 ```
 
